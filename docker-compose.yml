@@ -1,0 +1,30 @@
+version: "2.1"
+
+volumes:
+  pihole-config:
+  dnsmasq-config:
+
+services:
+  pi-hole:
+    build: ./balena-pihole/pihole
+    privileged: true
+    volumes:
+      - 'pihole-config:/etc/pihole'
+      - 'dnsmasq-config:/etc/dnsmasq.d'
+    cap_add:
+      - 'NET_ADMIN'
+    dns:
+      - '127.0.0.1'
+      - '1.1.1.1'
+    network_mode: host
+
+  # set pihole DNS1 and DNS2 service variables to 127.0.0.1#5053 to use dnscrypt-proxy for upstream DNS
+  dnscrypt-proxy:
+    build: ./balena-pihole/dnscrypt-proxy
+    ports:
+      - '5053:5053/udp'
+
+  mqtt:
+    image: panuwitp/mosquitto-arm
+    ports:
+      - "1883:1883"
