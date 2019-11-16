@@ -24,7 +24,7 @@ services:
     ports:
       - '5053:5053/udp'
 
-  mqtt:
+  mqtt-broker:
     image: panuwitp/mosquitto-arm
     ports:
       - "1883:1883"
