@@ -1,0 +1,1 @@
+FROM --platform=linux/arm/v7 klutchell/dnscrypt-proxy:latest

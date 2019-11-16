@@ -3,6 +3,7 @@ version: "2.1"
 volumes:
   pihole-config:
   dnsmasq-config:
+  dnscrypt-config:
 
 services:
   pi-hole:
@@ -20,7 +21,9 @@ services:
 
   # set pihole DNS1 and DNS2 service variables to 127.0.0.1#5053 to use dnscrypt-proxy for upstream DNS
   dnscrypt-proxy:
-    build: ./balena-pihole/dnscrypt-proxy
+    build: ./dnscrypt
+    volumes:
+      - 'dnscrypt-config:/config'
     ports:
       - '5053:5053/udp'
 
