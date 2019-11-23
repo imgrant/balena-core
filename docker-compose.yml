@@ -18,6 +18,8 @@ services:
       - '127.0.0.1'
       - '1.1.1.1'
     network_mode: host
+    depends_on:
+      - dnscrypt-proxy
 
   # set pihole DNS1 and DNS2 service variables to 127.0.0.1#5053 to use dnscrypt-proxy for upstream DNS
   dnscrypt-proxy:
@@ -26,8 +28,13 @@ services:
       - 'dnscrypt-config:/config'
     ports:
       - '5053:5053/udp'
-
+  
   mqtt-broker:
     image: panuwitp/mosquitto-arm
     ports:
       - "1883:1883"
+
+  telegraf-sensors:
+    build: ./telegraf
+    privileged: true
+    restart: always
