@@ -3,38 +3,55 @@ version: "2.1"
 volumes:
   pihole-config:
   dnsmasq-config:
-  dnscrypt-config:
 
 services:
   pi-hole:
-    build: ./balena-pihole/pihole
+    build:
+      context: .
+      dockerfile: pihole.dockerfile
+    restart: always
     privileged: true
     volumes:
       - 'pihole-config:/etc/pihole'
       - 'dnsmasq-config:/etc/dnsmasq.d'
-    cap_add:
-      - 'NET_ADMIN'
+    network_mode: host
     dns:
       - '127.0.0.1'
       - '1.1.1.1'
-    network_mode: host
+    environment:
+      TZ: 'Europe/London'
+      PIHOLE_DNS_: '127.0.0.1#5053'
+      INTERFACE: 'eth0'
+      DNSMASQ_LISTENING: 'eth0'
+      REV_SERVER: 'true'
+      REV_SERVER_DOMAIN: 'lan'
+      REV_SERVER_TARGET: '192.168.139.1'
+      REV_SERVER_CIDR: '192.168.139.0/24'
+    labels:
+      io.balena.features.dbus: "1"
     depends_on:
-      - dnscrypt-proxy
+      - unbound
 
-  # set pihole DNS1 and DNS2 service variables to 127.0.0.1#5053 to use dnscrypt-proxy for upstream DNS
-  dnscrypt-proxy:
-    build: ./dnscrypt
-    volumes:
-      - 'dnscrypt-config:/config'
-    ports:
-      - '5053:5053/udp'
-  
-  mqtt-broker:
-    image: panuwitp/mosquitto-arm
-    ports:
-      - "1883:1883"
-
-  telegraf-sensors:
-    build: ./telegraf
-    privileged: true
+  unbound:
+    image: klutchell/unbound-dnscrypt
     restart: always
+    ports:
+      - '5053:53/tcp'
+      - '5053:53/udp'
+
+  time-server:
+    image: cturra/ntp
+    restart: always
+    ports:
+      - 123:123/udp
+    cap_add:
+      - SYS_TIME
+    environment:
+      - NTP_SERVERS=time.cloudflare.com
+    dns: 192.168.139.10
+
+  sensors:
+    build: ./sensors
+    privileged: true
+    restart: unless-stopped
+    dns: 192.168.139.10

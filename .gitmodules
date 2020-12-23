@@ -1,3 +1,0 @@
-[submodule "balena-pihole"]
-	path = balena-pihole
-	url = git@github.com:klutchell/balena-pihole.git
