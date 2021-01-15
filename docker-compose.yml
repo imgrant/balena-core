@@ -3,6 +3,7 @@ version: "2.1"
 volumes:
   pihole-config:
   dnsmasq-config:
+  bsec-data:
 
 services:
   pi-hole:
@@ -52,6 +53,8 @@ services:
 
   sensors:
     build: ./sensors
+    volumes:
+      - 'bsec-data:/data/bsec'
     privileged: true
     restart: unless-stopped
     dns: 192.168.139.10
